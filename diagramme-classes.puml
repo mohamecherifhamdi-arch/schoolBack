@@ -1,0 +1,178 @@
+@startuml
+' Configuration
+skinparam classFontColor black
+skinparam arrowColor #006699
+skinparam classBorderColor #006699
+skinparam classBackgroundColor #F5F5F5
+
+package "School Management Entities" {
+
+  class Classe {
+    - id: String
+    - nom: String
+    - niveau: String
+    - filiere: String
+    - effectif: int
+    - anneeScolaire: String
+  }
+
+  class Eleve {
+    - id: String
+    - nom: String
+    - prenom: String
+    - niveau: String
+    - telephone: String
+    - email: String
+    - statut: String
+  }
+
+  class Enseignant {
+    - id: String
+    - nom: String
+    - prenom: String
+    - email: String
+    - telephone: String
+    - statut: String
+  }
+
+  class Matiere {
+    - id: String
+    - code: String
+    - nom: String
+    - niveau: String
+    - coefficient: int
+    - credit: int
+    - heures: int
+    - statut: String
+  }
+
+  class Salle {
+    - id: String
+    - code: String
+    - nom: String
+    - capacite: int
+    - batiment: String
+    - etage: int
+    - statut: String
+    - equipement: List~String~
+  }
+
+  class Note {
+    - id: String
+    - type: String
+    - valeur: double
+    - coefficient: double
+    - date: LocalDate
+    - statut: String
+  }
+
+  class Absence {
+    - id: String
+    - date: LocalDate
+    - seance: String
+    - justifie: boolean
+    - motif: String
+  }
+
+  class Parent {
+    - id: String
+    - nom: String
+    - adresse: String
+    - telephone: String
+    - email: String
+    - statut: String
+  }
+
+  class Payment {
+    - id: String
+    - mois: String
+    - montantAttendu: double
+    - montantPaye: double
+    - datePaiement: LocalDate
+    - typePaiement: String
+    - statut: String
+    - remarque: String
+  }
+
+  class Planning {
+    - id: String
+    - date: LocalDate
+    - heureDebut: LocalTime
+    - heureFin: LocalTime
+  }
+
+  class Reclamation {
+    - id: String
+    - date: LocalDate
+    - cause: String
+    - penalite: String
+    - statut: String
+  }
+
+  class Rapport {
+    - id: String
+    - titre: String
+    - elevePrenom: String
+    - eleveNom: String
+    - jurys: List~String~
+    - remarque: String
+    - date: LocalDate
+    - statut: String
+    - bibliotheque: boolean
+  }
+
+  class Reservation {
+    - id: String
+    - roomName: String
+    - teacherName: String
+    - className: String
+    - date: String
+    - session: String
+    - subject: String
+  }
+}
+
+' === RELATIONS ===
+
+' Classe ↔ Eleve
+Classe "1" -- "*" Eleve : @OneToMany\n(mappedBy="classe")
+Eleve "*" -- "1" Classe : @ManyToOne
+
+' Matiere ↔ Enseignant
+Matiere "1" -- "*" Enseignant : @OneToMany
+Enseignant "*" -- "1" Matiere : @ManyToOne
+
+' Note
+Note "*" -- "1" Eleve : @ManyToOne
+Note "*" -- "1" Matiere : @ManyToOne
+Note "*" -- "1" Classe : @ManyToOne
+
+' Absence
+Absence "*" -- "1" Enseignant : @ManyToOne
+Absence "*" -- "1" Classe : @ManyToOne
+
+' Parent
+Parent "*" -- "1" Eleve : @ManyToOne
+Parent "*" -- "1" Classe : @ManyToOne
+
+' Payment
+Payment "*" -- "1" Eleve : @ManyToOne
+
+' Planning
+Planning "*" -- "1" Enseignant : @ManyToOne
+Planning "*" -- "1" Matiere : @ManyToOne
+Planning "*" -- "1" Classe : @ManyToOne
+Planning "*" -- "1" Salle : @ManyToOne
+
+' Reclamation
+Reclamation "*" -- "1" Enseignant : @ManyToOne
+Reclamation "*" -- "1" Eleve : @ManyToOne
+
+' Rapport
+Rapport "*" -- "1" Eleve : @ManyToOne
+
+' Salle ↔ Reservation
+Salle "1" -- "*" Reservation : @OneToMany\n(mappedBy="salle")
+Reservation "*" -- "1" Salle : @ManyToOne
+
+@enduml
