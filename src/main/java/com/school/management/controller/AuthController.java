@@ -24,6 +24,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        System.out.println("Welcommmmmmmmmmmmmmmme to login: ");
         String correlationId = UUID.randomUUID().toString();
         CompletableFuture<AuthResponseMessage> future = responseConsumer.registerPending(correlationId);
 
