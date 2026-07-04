@@ -63,6 +63,7 @@ public class TokenValidationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             chain.doFilter(request, response);
         } catch (HttpClientErrorException e) {
+            System.out.println(e);
             response.setStatus(401);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"Invalid or expired token\"}");

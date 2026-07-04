@@ -1,6 +1,7 @@
 package com.school.management.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.school.management.entity.Absence;
 import com.school.management.entity.Enseignant;
 import com.school.management.entity.Matiere;
 import java.util.List;
@@ -14,16 +15,19 @@ public class EnseignantDTO {
     @JsonIgnoreProperties("enseignant")
     private List<Matiere> matieres;
     private String statut;
+    private List<Absence> absences;
 
     public EnseignantDTO() {}
 
-    public EnseignantDTO(Long id, String nom, String prenom, String email, String telephone, List<Matiere> matieres, String statut) {
+    public EnseignantDTO(Long id, String nom, String prenom, String email, String telephone, List<Matiere> matieres, String statut,List<Absence> absences) {
         this.id = id; this.nom = nom; this.prenom = prenom; this.email = email;
         this.telephone = telephone; this.matieres = matieres; this.statut = statut;
+        this.absences = absences;
+
     }
 
     public static EnseignantDTO fromEntity(Enseignant e) {
-        return new EnseignantDTO(e.getId(), e.getNom(), e.getPrenom(), e.getEmail(), e.getTelephone(), e.getMatieres(), e.getStatut());
+        return new EnseignantDTO(e.getId(), e.getNom(), e.getPrenom(), e.getEmail(), e.getTelephone(), e.getMatieres(), e.getStatut(),e.getAbsences());
     }
 
     public Long getId() { return id; }

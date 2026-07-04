@@ -18,7 +18,7 @@ import java.util.List;
 @Document(collection = "parents")
 public class Parent {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank private String nom;
     private String adresse;

@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Document(collection = "notes")
 public class Note {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @JsonIgnoreProperties({"notes", "payments", "classe"})
     private Eleve eleve;

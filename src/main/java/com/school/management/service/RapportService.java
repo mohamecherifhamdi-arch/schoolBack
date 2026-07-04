@@ -13,12 +13,15 @@ import java.util.List;
 public class RapportService {
     private final RapportRepository repository;
     private final EleveRepository eleveRepository;
+    private Long rapportId = 1L;
     public RapportService(RapportRepository repository, EleveRepository eleveRepository) { this.repository = repository; this.eleveRepository = eleveRepository; }
 
     public List<RapportDTO> findAll() { return repository.findAll().stream().map(RapportDTO::fromEntity).toList(); }
     public RapportDTO findById(Long id) { return RapportDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Rapport not found"))); }
     public RapportDTO create(RapportDTO dto) {
         Rapport r = new Rapport();
+        rapportId = rapportId + 1;
+        r.setId(rapportId);
         r.setTitre(dto.getTitre());
         r.setEleve(dto.getEleve() != null && dto.getEleve().getId() != null ? eleveRepository.findById(dto.getEleve().getId()).orElse(null) : null);
         r.setJurys(dto.getJurys());

@@ -19,8 +19,7 @@ public class AdminService {
 
     public Admin update(String id, Admin admin) {
         Admin existing = findById(id);
-        existing.setName(admin.getName());
-        existing.setEmail(admin.getEmail());
+        System.out.println("Rolllllllllllllllllllllle"+admin.getRole());
         existing.setRole(admin.getRole());
         existing.setStatus(admin.getStatus());
         return repository.save(existing);

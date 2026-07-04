@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 public class SalleService {
+    private static Long salleId = 1L;
     private final SalleRepository repository;
     private final ReservationRepository reservationRepository;
     public SalleService(SalleRepository repository, ReservationRepository reservationRepository) { this.repository = repository; this.reservationRepository = reservationRepository; }
@@ -21,7 +22,9 @@ public class SalleService {
         return SalleDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Salle not found")));
     }
     public SalleDTO create(SalleDTO dto) {
+        salleId = salleId + 1;
         Salle salle = new Salle();
+        salle.setId(salleId);
         salle.setNom(dto.getNom());
         salle.setCapacite(dto.getCapacite());
         salle.setBatiment(dto.getBatiment());

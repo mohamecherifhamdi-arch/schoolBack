@@ -195,10 +195,10 @@ public class DataSeeder implements CommandLineRunner {
         ));
         System.out.println("\u2192 2 r\u00e9clamations");
 
-        rapportRepo.saveAll(List.of(
-            new Rapport(null, "Rapport PFE", el1, List.of("Mme Martin", "M. Dupont"), "Excellent travail", LocalDate.now(), "Valid\u00e9", true),
-            new Rapport(null, "Rapport Stage", el6, List.of("M. Bernard"), "Bon travail", LocalDate.now(), "En cours", false)
-        ));
+       // rapportRepo.saveAll(List.of(
+     //       new Rapport(null, "Rapport PFE", el1, List.of("Mme Martin", "M. Dupont"), "Excellent travail", LocalDate.now(), "Valid\u00e9", true),
+          //  new Rapport(null, "Rapport Stage", el6, List.of("M. Bernard"), "Bon travail", LocalDate.now(), "En cours", false)
+      //  ));
         System.out.println("\u2192 2 rapports");
 
         System.out.println("=== Seed termin\u00e9 avec succ\u00e8s ===");

@@ -24,7 +24,7 @@ public class EleveDTO {
         return new EleveDTO(e.getId(), e.getNom(), e.getPrenom(), e.getClasse(), e.getNiveau(), e.getTelephone(), e.getEmail(), e.getStatut());
     }
 
-    public Eleve toEntity() {
+    public Eleve toEntity(Long id) {
         Eleve e = new Eleve();
         e.setId(id); e.setNom(nom); e.setPrenom(prenom); e.setClasse(classe);
         e.setNiveau(niveau); e.setTelephone(telephone); e.setEmail(email); e.setStatut(statut);

@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Document(collection = "reservations")
 public class Reservation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @JsonIgnoreProperties({"matieres", "absences"})
     private Enseignant enseignant;

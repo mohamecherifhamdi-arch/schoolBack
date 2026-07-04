@@ -17,7 +17,7 @@ import java.util.List;
 @Document(collection = "enseignants")
 public class Enseignant {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank private String nom;
     @NotBlank private String prenom;

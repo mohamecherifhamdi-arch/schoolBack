@@ -19,6 +19,7 @@ public class NoteService {
     private final EleveRepository eleveRepository;
     private final MatiereRepository matiereRepository;
     private final ClasseRepository classeRepository;
+    private Long noteId = 1L;
     public NoteService(NoteRepository repository, EleveRepository eleveRepository, MatiereRepository matiereRepository, ClasseRepository classeRepository) {
         this.repository = repository;
         this.eleveRepository = eleveRepository;
@@ -31,6 +32,8 @@ public class NoteService {
     public NoteDTO create(NoteDTO dto) {
         Note note = new Note();
         note.setEleve(dto.getEleve() != null && dto.getEleve().getId() != null ? eleveRepository.findById(dto.getEleve().getId()).orElse(null) : null);
+        noteId = noteId +1;
+        note.setId(noteId);
         note.setMatiere(dto.getMatiere() != null && dto.getMatiere().getId() != null ? matiereRepository.findById(dto.getMatiere().getId()).orElse(null) : null);
         note.setClasse(dto.getClasse() != null && dto.getClasse().getId() != null ? classeRepository.findById(dto.getClasse().getId()).orElse(null) : null);
         note.setType(dto.getType());

@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 public class PlanningService {
+    private Long paymentId = 1L;
     private final PlanningRepository repository;
     public PlanningService(PlanningRepository repository) {
         this.repository = repository;
@@ -19,6 +20,8 @@ public class PlanningService {
     public PlanningDTO findById(Long id) { return PlanningDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Planning not found"))); }
     public PlanningDTO create(PlanningDTO dto) {
         Planning p = new Planning();
+        paymentId = paymentId +1;
+        p.setId(paymentId);
         p.setEnseignant(dto.getEnseignant());
         p.setMatiere(dto.getMatiere());
         p.setClasse(dto.getClasse());

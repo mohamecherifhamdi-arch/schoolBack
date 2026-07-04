@@ -19,7 +19,7 @@ import java.util.List;
 @Document(collection = "rapports")
 public class Rapport {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank private String titre;
 

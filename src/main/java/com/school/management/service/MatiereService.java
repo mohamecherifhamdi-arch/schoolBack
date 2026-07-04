@@ -14,13 +14,16 @@ import java.util.Optional;
 
 @Service
 public class MatiereService {
+    private Long matiereId = 1L;
     private final MatiereRepository repository;
     private final EnseignantRepository enseignantRepository;
     private final ClasseRepository classeRepository;
-    public MatiereService(MatiereRepository repository, EnseignantRepository enseignantRepository, ClasseRepository classeRepository) {
+    private final EntitySyncService entitySyncService;
+    public MatiereService(MatiereRepository repository, EnseignantRepository enseignantRepository, ClasseRepository classeRepository, EntitySyncService entitySyncService) {
         this.repository = repository;
         this.enseignantRepository = enseignantRepository;
         this.classeRepository = classeRepository;
+        this.entitySyncService = entitySyncService;
     }
 
     public List<MatiereDTO> findAll() { return repository.findAll().stream().map(MatiereDTO::fromEntity).toList(); }
@@ -28,6 +31,8 @@ public class MatiereService {
 
     public MatiereDTO create(MatiereDTO dto) {
         Matiere matiere = new Matiere();
+        matiereId = matiereId + 1;
+        matiere.setId(matiereId);
         matiere.setCode(dto.getCode());
         matiere.setNom(dto.getNom());
         matiere.setNiveau(dto.getNiveau());
@@ -65,6 +70,7 @@ public class MatiereService {
         if (oldEnseignant != null && (saved.getEnseignant() == null || !oldEnseignant.getId().equals(saved.getEnseignant().getId()))) {
             syncEnseignantMatieres(oldEnseignant);
         }
+        entitySyncService.syncMatiere(saved);
         return MatiereDTO.fromEntity(saved);
     }
 
@@ -73,6 +79,8 @@ public class MatiereService {
         Classe classe = matiere.getClasse();
         Enseignant enseignant = matiere.getEnseignant();
         repository.deleteById(id);
+        entitySyncService.syncDeleteMatiere(id);
+
         if (classe != null) syncClasseMatieres(classe);
         if (enseignant != null) syncEnseignantMatieres(enseignant);
     }

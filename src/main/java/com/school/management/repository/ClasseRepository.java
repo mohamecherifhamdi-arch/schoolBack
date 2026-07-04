@@ -10,4 +10,6 @@ import java.util.List;
 public interface ClasseRepository extends MongoRepository<Classe, Long> {
     List<Classe> findByNiveau(String niveau);
     List<Classe> findByFiliere(String filiere);
+    List<Classe> findByEleves_Id(Long eleveId);
+    List<Classe> findByMatieres_Id(Long matiereId);
 }
