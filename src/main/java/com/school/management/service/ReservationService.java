@@ -11,6 +11,7 @@ import java.util.List;
 
 @Service
 public class ReservationService {
+    private static Long reservationId = 1L;
     private final ReservationRepository repository;
     private final SalleRepository salleRepository;
     private final EnseignantRepository enseignantRepository;
@@ -27,7 +28,9 @@ public class ReservationService {
         return ReservationDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Reservation not found")));
     }
     public ReservationDTO create(ReservationDTO dto) {
+        reservationId = reservationId + 1;
         Reservation r = new Reservation();
+        r.setId(reservationId);
         r.setEnseignant(dto.getEnseignant() != null && dto.getEnseignant().getId() != null ? enseignantRepository.findById(dto.getEnseignant().getId()).orElse(null) : null);
         r.setSalle(dto.getSalle() != null && dto.getSalle().getId() != null ? salleRepository.findById(dto.getSalle().getId()).orElse(null) : null);
         r.setClassName(dto.getClassName());

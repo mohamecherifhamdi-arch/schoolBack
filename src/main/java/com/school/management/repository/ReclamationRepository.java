@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ReclamationRepository extends MongoRepository<Reclamation, Long> {
     List<Reclamation> findByStatut(String statut);
+    List<Reclamation> findByEnseignant_Id(Long enseignantId);
+    List<Reclamation> findByEleve_Id(Long eleveId);
 }

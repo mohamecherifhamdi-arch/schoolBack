@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 public class ParentService {
+    private Long parentId = 1L;
     private final ParentRepository repository;
     private final EleveRepository eleveRepository;
     public ParentService(ParentRepository repository, EleveRepository eleveRepository) {
@@ -21,6 +22,8 @@ public class ParentService {
     public ParentDTO findById(Long id) { return ParentDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Parent not found"))); }
     public ParentDTO create(ParentDTO dto) {
         Parent p = new Parent();
+        parentId = parentId + 1;
+        p.setId(parentId);
         p.setNom(dto.getNom());
         p.setAdresse(dto.getAdresse());
         p.setTelephone(dto.getTelephone());

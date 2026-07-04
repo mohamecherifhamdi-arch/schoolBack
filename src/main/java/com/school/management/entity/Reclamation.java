@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Document(collection = "reclamations")
 public class Reclamation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Enseignant enseignant;
     private Eleve eleve;

@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Document(collection = "absences")
 public class Absence {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @JsonIgnoreProperties({"absences", "matiere"})
     private Enseignant enseignant;

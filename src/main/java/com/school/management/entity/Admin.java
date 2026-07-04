@@ -24,6 +24,7 @@ public class Admin {
     private String status;
     private String refreshToken;
     private String invitationToken;
+    private String password;
     @Field("createdAt")
     private LocalDateTime createdAt;
 }

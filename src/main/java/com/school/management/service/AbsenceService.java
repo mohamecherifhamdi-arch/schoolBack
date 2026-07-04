@@ -12,6 +12,7 @@ import java.util.Optional;
 
 @Service
 public class AbsenceService {
+    private static Long generatedId = Long.valueOf(0);
     private final AbsenceRepository repository;
     private final EnseignantRepository enseignantRepository;
     public AbsenceService(AbsenceRepository repository, EnseignantRepository enseignantRepository) {
@@ -22,6 +23,8 @@ public class AbsenceService {
     public AbsenceDTO findById(Long id) { return AbsenceDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Absence not found"))); }
     public AbsenceDTO create(AbsenceDTO dto) {
         Absence absence = new Absence();
+        generatedId = generatedId +1;
+        absence.setId(generatedId);
         absence.setEnseignant(dto.getEnseignant() != null && dto.getEnseignant().getId() != null ? enseignantRepository.findById(dto.getEnseignant().getId()).orElse(null) : null);
         absence.setClasse(dto.getClasse());
         absence.setSalle(dto.getSalle());

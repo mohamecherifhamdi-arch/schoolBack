@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Document(collection = "matieres")
 public class Matiere {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+   // @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NotBlank private String code;
     @NotBlank private String nom;

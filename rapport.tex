@@ -1,0 +1,809 @@
+\documentclass[12pt,a4paper,twoside]{report}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{glossaries}
+
+% Page margins
+\geometry{
+  top=2.5cm,
+  bottom=2.5cm,
+  left=3cm,
+  right=2.5cm
+}
+
+% Code listing style
+\lstdefinestyle{javaStyle}{
+  language=Java,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!50!black},
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true,
+  frame=single,
+  tabsize=2
+}
+
+\lstdefinestyle{jsonStyle}{
+  language=XML,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\color{blue},
+  stringstyle=\color{teal},
+  breaklines=true,
+  frame=single
+}
+
+\lstdefinestyle{typescriptStyle}{
+  language=Java,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!50!black},
+  numbers=left,
+  numberstyle=\tiny,
+  breaklines=true,
+  frame=single,
+  tabsize=2
+}
+
+% Custom colors
+\definecolor{primaryblue}{RGB}{46,64,87}
+\definecolor{secondarygray}{RGB}{84,110,122}
+
+% Title page
+\title{
+  \vspace*{2cm}
+  \Huge\textbf{School Management System}\\[0.5cm]
+  \Large\textbf{Système de Gestion Scolaire}\\[1cm]
+  \large Projet de Fin d'Études\\[0.3cm]
+  \large Licence en Informatique\\[2cm]
+  \includegraphics[width=0.4\textwidth]{example-image}\\[1cm]
+}
+
+\author{
+  \textbf{Présenté par :}\\
+  CHERIF HAMDI Mohamed\\
+  \vspace{0.5cm}
+  \textbf{Encadré par :}\\
+  Dr. BEN ALI Ahmed
+}
+\date{\today}
+
+\begin{document}
+
+% Front matter
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% Dedication
+\thispagestyle{empty}
+\begin{center}
+  \vspace*{4cm}
+  \textit{À mes parents, pour leur soutien inconditionnel.}\\[1cm]
+  \textit{À mon encadrant, pour ses précieux conseils.}
+\end{center}
+\newpage
+
+% Abstract
+\thispagestyle{empty}
+\begin{center}
+  \textbf{\Large Résumé}
+\end{center}
+\vspace{0.5cm}
+
+Ce rapport présente la conception et le développement d'un système de gestion scolaire (School Management System) visant à automatiser et simplifier les processus administratifs et pédagogiques d'un établissement d'enseignement. Le système couvre la gestion des élèves, enseignants, classes, matières, notes, absences, paiements, plannings, salles, réservations, réclamations et rapports PFE/PFA.
+
+L'architecture adoptée est basée sur une séparation en trois composants indépendants : un frontend Angular 17, un backend Spring Boot 3 faisant office de passerelle API, et un service d'authentification dédié. La communication entre le backend et le service d'authentification est assurée par Kafka pour les opérations asynchrones (login/register) et par REST synchrone pour la validation des jetons JWT. La persistance des données est gérée via MongoDB, une base de données NoSQL orientée documents, permettant une flexibilité et une scalabilité accrues.
+
+Le système intègre également un module de chatbot intelligent basé sur Spring AI et OpenAI, un système de synchronisation automatique des documents embarqués (EntitySyncService), ainsi qu'une gestion complète des utilisateurs avec authentification JWT et rafraîchissement de tokens.
+
+\vspace{1cm}
+\textbf{Mots-clés :} Gestion scolaire, Spring Boot, Angular, MongoDB, Kafka, JWT, Microservices, NoSQL, Chatbot.
+
+\newpage
+
+% Table of contents
+\tableofcontents
+\newpage
+
+% List of figures
+\listoffigures
+\newpage
+
+% List of tables
+\listoftables
+\newpage
+
+% =====================================================
+\chapter*{Introduction Générale}
+\addcontentsline{toc}{chapter}{Introduction Générale}
+% =====================================================
+
+\paragraph{Contexte}
+La gestion administrative et pédagogique d'un établissement scolaire implique de nombreux processus : inscription des élèves, planification des cours, suivi des notes et des absences, gestion des paiements, réservation des salles, encadrement des projets de fin d'études, etc. Traditionnellement, ces tâches sont effectuées manuellement ou via des outils disparates, entraînant une perte de temps, des erreurs de saisie et un manque de visibilité pour les administrateurs.
+
+\paragraph{Problématique}
+Face à la complexité croissante de la gestion scolaire, les établissements ont besoin d'une solution intégrée, centralisée et moderne. Les défis spécifiques incluent :
+\begin{itemize}[leftmargin=*]
+  \item La centralisation des données hétérogènes (élèves, enseignants, notes, paiements) dans un système unifié.
+  \item La gestion sécurisée des accès avec des rôles distincts (administrateur, enseignant, parent).
+  \item L'automatisation des processus métier (validation des rapports, notification des absences).
+  \item La synchronisation des données entre différentes couches applicatives.
+  \item La traçabilité et l'historisation des actions (paiements, modifications de notes).
+\end{itemize}
+
+\paragraph{Objectifs}
+Ce projet vise à concevoir et développer un système de gestion scolaire complet reposant sur une architecture moderne. Les objectifs principaux sont :
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Modularité :} Séparer l'application en composants indépendants (frontend, backend, auth-service) pour faciliter la maintenance et l'évolution.
+  \item \textbf{Sécurité :} Implémenter une authentification JWT robuste avec rafraîchissement de tokens et validation centralisée.
+  \item \textbf{Scalabilité :} Utiliser MongoDB comme base de données NoSQL pour une flexibilité maximale et Kafka pour les communications asynchrones.
+  \item \textbf{Expérience utilisateur :} Offrir une interface moderne, réactive et intuitive grâce à Angular 17 et le template Berry.
+  \item \textbf{Intelligence :} Intégrer un assistant virtuel basé sur l'IA (OpenAI) pour aider les utilisateurs.
+\end{enumerate}
+
+\paragraph{Structure du rapport}
+Ce rapport est organisé comme suit :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Chapitre 1 :} Analyse et Conception — présentation des besoins fonctionnels, des cas d'utilisation et de l'architecture globale.
+  \item \textbf{Chapitre 2 :} Technologies et Outils — description de l'environnement technique et des choix technologiques.
+  \item \textbf{Chapitre 3 :} Implémentation du Backend — détails de l'API REST, du service d'authentification et de la synchronisation des données.
+  \item \textbf{Chapitre 4 :} Implémentation du Frontend — architecture Angular, composants, services et intégration avec le backend.
+  \item \textbf{Chapitre 5 :} Tests et Déploiement — stratégie de test, déploiement sur GitHub et guide d'installation.
+  \item \textbf{Chapitre 6 :} Conclusion et Perspectives — bilan du projet et pistes d'amélioration.
+\end{itemize}
+
+\paragraph{Méthodologie}
+Le projet a été réalisé suivant une approche itérative avec des cycles de développement courts :
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Cycle 1 :} Mise en place du backend (entités, repositories, services) avec MongoDB.
+  \item \textbf{Cycle 2 :} Développement du service d'authentification (JWT, Kafka, validation REST).
+  \item \textbf{Cycle 3 :} Construction du frontend Angular avec les composants CRUD.
+  \item \textbf{Cycle 4 :} Intégration et synchronisation (EntitySyncService, chatbot, tests).
+\end{enumerate}
+
+\vspace{0.5cm}
+Ce rapport détaille l'ensemble du travail réalisé, en mettant l'accent sur les choix architecturaux, les défis techniques rencontrés et les solutions apportées.
+
+% =====================================================
+\chapter{Analyse et Conception}
+% =====================================================
+
+\section{Analyse des Besoins}
+
+\subsection{Besoins Fonctionnels}
+Le système doit répondre aux besoins fonctionnels suivants :
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Gestion des élèves :} Ajout, modification, consultation et suppression des élèves avec leurs informations personnelles et leur classe.
+  \item \textbf{Gestion des enseignants :} CRUD des enseignants avec affectation des matières et suivi des absences.
+  \item \textbf{Gestion des classes :} Organisation des classes avec affectation des élèves et des matières.
+  \item \textbf{Gestion des matières :} Définition des matières avec coefficient, crédits, enseignant responsable et classe associée.
+  \item \textbf{Gestion des notes :} Saisie et consultation des notes par élève, matière et type (DS, TP, Examen).
+  \item \textbf{Gestion des absences :} Enregistrement des absences avec motif, justification et enseignant concerné.
+  \item \textbf{Gestion des paiements :} Suivi des paiements par élève avec mois, montants et statut.
+  \item \textbf{Gestion des plannings :} Planification des cours avec salle, date, horaire et matière.
+  \item \textbf{Gestion des salles :} Réservation des salles avec contrôle de conflits.
+  \item \textbf{Gestion des réclamations :} Dépôt et suivi des réclamations entre enseignants et élèves.
+  \item \textbf{Gestion des rapports PFE/PFA :} Suivi des projets de fin d'études avec jury, statut et bibliothèque.
+  \item \textbf{Gestion des parents :} Liaison des parents avec leurs enfants.
+  \item \textbf{Authentification et autorisation :} Login, register, refresh token, validation JWT.
+  \item \textbf{Assistant IA :} Chatbot pour aider les utilisateurs dans leurs tâches.
+\end{itemize}
+
+\subsection{Besoins Non Fonctionnels}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Sécurité :} Authentification JWT, protection des endpoints, CORS configuré.
+  \item \textbf{Performance :} Temps de réponse < 2s pour les opérations courantes.
+  \item \textbf{Scalabilité :} Architecture microservices avec communication asynchrone (Kafka).
+  \item \textbf{Maintenabilité :} Code modulaire, documentation des API, séparation des couches.
+  \item \textbf{Disponibilité :} Le système doit être disponible 24/7 avec reprise après panne.
+  \item \textbf{Portabilité :} Déploiement simplifié via Docker (envisagé).
+\end{itemize}
+
+\section{Architecture Globale}
+
+Le système suit une architecture en trois composants indépendants :
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=2cm, auto]
+    % Nodes
+    \node (front) [draw, rectangle, rounded corners, fill=blue!10, minimum width=3cm, minimum height=1.5cm] {Frontend Angular\\:4200};
+    \node (back) [draw, rectangle, rounded corners, fill=green!10, minimum width=3cm, minimum height=1.5cm, right=3cm of front] {Backend Spring Boot\\:8080};
+    \node (auth) [draw, rectangle, rounded corners, fill=orange!10, minimum width=3cm, minimum height=1.5cm, below=2cm of back] {Auth Service\\:8083};
+    \node (kafka) [draw, cloud, cloud puffs=10, aspect=2, fill=gray!10, minimum width=2cm, below=0.5cm of back] {Kafka\\:9092};
+    \node (mongo) [draw, cylinder, shape border rotate=90, aspect=0.25, fill=purple!10, minimum width=3cm, right=2cm of back] {MongoDB\\:27017};
+
+    % Edges
+    \draw[->, thick] (front) -- node[above] {HTTP REST} (back);
+    \draw[<->, thick] (back) -- node[right] {Kafka} (kafka);
+    \draw[<->, thick] (auth) -- node[above] {Kafka} (kafka);
+    \draw[->, thick] (back) -- node[right] {REST validate} (auth);
+    \draw[->, thick] (back) -- node[above] {CRUD} (mongo);
+    \draw[->, thick] (auth) -- node[below] {users} (mongo);
+  \end{tikzpicture}
+  \caption{Architecture globale du système}
+  \label{fig:architecture}
+\end{figure}
+
+\subsection{Composants}
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Frontend (Angular 17) :} Interface utilisateur moderne utilisant le template Berry. Communique avec le backend via une proxy de développement. Gère l'authentification, l'affichage des données et les interactions utilisateur.
+  \item \textbf{Backend (Spring Boot 3) :} Passerelle API exposant les endpoints REST pour toutes les opérations CRUD. Gère l'authentification via Kafka et REST, la validation des tokens JWT, et la synchronisation des documents MongoDB embarqués.
+  \item \textbf{Auth Service (Spring Boot 3) :} Service dédié à l'authentification. Gère l'inscription, la connexion, le rafraîchissement et la validation des tokens JWT. Communique avec le backend via Kafka (asynchrone) et REST (synchrone).
+\end{enumerate}
+
+\section{Diagramme de Cas d'Utilisation}
+
+Les principaux acteurs du système sont :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Administrateur :} Gère l'ensemble du système (CRUD complet, gestion des utilisateurs).
+  \item \textbf{Enseignant :} Consulte ses matières, saisit les notes et absences.
+  \item \textbf{Parent :} Consulte les notes et paiements de ses enfants.
+  \item \textbf{Élève :} Consulte ses notes, absences et effectue des réclamations.
+\end{itemize}
+
+\section{Modèle de Données}
+
+Le système utilise MongoDB comme base de données NoSQL. Contrairement à une base relationnelle, MongoDB stocke les données sous forme de documents JSON binaires (BSON). Cette approche permet d'embarquer des objets liés directement dans les documents parents, réduisant ainsi le nombre de requêtes nécessaires.
+
+\subsection{Entités Principales}
+Le système comprend 14 collections :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{users :} Comptes utilisateur (Admin et auth-service).
+  \item \textbf{enseignants :} Enseignants avec leurs matières et absences embarquées.
+  \item \textbf{eleves :} Élèves avec leurs notes et paiements embarqués.
+  \item \textbf{classes :} Classes avec leurs élèves et matières embarqués.
+  \item \textbf{matieres :} Matières avec enseignant et classe associés.
+  \item \textbf{notes :} Notes avec élève, matière et classe embarqués.
+  \item \textbf{absences :} Absences avec enseignant embarqué.
+  \item \textbf{payments :} Paiements avec élève embarqué.
+  \item \textbf{plannings :} Créneaux de cours.
+  \item \textbf{salles :} Salles avec réservations embarquées.
+  \item \textbf{reservations :} Réservations avec enseignant et salle embarqués.
+  \item \textbf{parents :} Parents avec leurs enfants embarqués.
+  \item \textbf{reclamations :} Réclamations avec enseignant et élève embarqués.
+  \item \textbf{rapports :} Rapports PFE/PFA avec élève et jurys embarqués.
+\end{itemize}
+
+\subsection{Synchronisation des Données}
+Une contrainte importante du modèle NoSQL avec documents embarqués est la duplication des données. Par exemple, un objet \texttt{Enseignant} est embarqué dans les documents \texttt{Absence}, \texttt{Matiere}, \texttt{Reclamation} et \texttt{Reservation}. Lorsqu'un enseignant est modifié, toutes ces références doivent être mises à jour.
+
+Pour résoudre ce problème, nous avons implémenté un \texttt{EntitySyncService} centralisé qui, après chaque mise à jour d'une entité mère, parcourt l'ensemble des collections référençantes et met à jour les documents concernés.
+
+\begin{lstlisting}[style=javaStyle, caption=Service de synchronisation des entités (EntitySyncService)]
+@Service
+public class EntitySyncService {
+    
+    public void syncEnseignant(Enseignant updated) {
+        Long id = updated.getId();
+        absenceRepo.findByEnseignant_Id(id)
+            .forEach(a -> { a.setEnseignant(updated); absenceRepo.save(a); });
+        matiereRepo.findByEnseignant_Id(id)
+            .forEach(m -> { m.setEnseignant(updated); matiereRepo.save(m); });
+        reclamationRepo.findByEnseignant_Id(id)
+            .forEach(r -> { r.setEnseignant(updated); reclamationRepo.save(r); });
+        reservationRepo.findByEnseignant_Id(id)
+            .forEach(r -> { r.setEnseignant(updated); reservationRepo.save(r); });
+    }
+    // Methodes similaires pour syncEleve, syncMatiere, syncClasse, syncSalle
+}
+\end{lstlisting}
+
+% =====================================================
+\chapter{Technologies et Outils}
+% =====================================================
+
+\section{Technologies Backend}
+
+\subsection{Spring Boot 3}
+Spring Boot est un framework Java qui facilite le développement d'applications autonomes et prêtes pour la production. La version 3 apporte le support de Java 17, une meilleure intégration avec GraalVM, et une sécurité renforcée.
+
+Le projet utilise les modules Spring Boot suivants :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Spring Web :} Pour la création des endpoints REST.
+  \item \textbf{Spring Data MongoDB :} Pour l'accès à la base de données MongoDB.
+  \item \textbf{Spring Security :} Pour la configuration de la sécurité (CORS, CSRF, filtres).
+  \item \textbf{Spring Kafka :} Pour la production et la consommation de messages Kafka.
+  \item \textbf{Spring Validation :} Pour la validation des données entrantes (Bean Validation).
+\end{itemize}
+
+\subsection{MongoDB}
+MongoDB est une base de données NoSQL orientée documents. Chaque enregistrement est un document JSON flexible, permettant des schémas dynamiques et des relations embarquées. Avantages pour ce projet :
+\begin{itemize}[leftmargin=*]
+  \item Flexibilité du schéma (ajout facile de champs).
+  \item Performance grâce à l'embarquement des données liées.
+  \item Scalabilité horizontale native.
+  \item Requêtage puissant via le Query DSL Spring Data.
+\end{itemize}
+
+\subsection{Kafka}
+Apache Kafka est une plateforme de streaming distribuée utilisée pour la communication asynchrone entre le backend et l'auth-service. Les topics utilisés sont :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{auth-requests :} Messages de login/register envoyés par le backend.
+  \item \textbf{auth-responses :} Réponses de l'auth-service avec les tokens JWT.
+\end{itemize}
+
+Le pattern utilisé est celui de la requête/réponse asynchrone avec identifiant de corrélation :
+
+\begin{lstlisting}[style=javaStyle, caption=Communication Kafka asynchrone]
+// Backend - AuthController
+@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    String correlationId = UUID.randomUUID().toString();
+    CompletableFuture<AuthResponseMessage> future = 
+        responseConsumer.registerPending(correlationId);
+
+    producer.send(new AuthRequestMessage(correlationId, "LOGIN", 
+        request.getUsername(), request.getPassword()));
+
+    AuthResponseMessage response = future.get(10, TimeUnit.SECONDS);
+    return ResponseEntity.ok(new AuthResponse(response.getToken(), 
+        response.getRefreshToken(), response.getUsername(), response.getRole()));
+}
+\end{lstlisting}
+
+\section{Technologies Frontend}
+
+\subsection{Angular 17}
+Angular est un framework de développement d'applications web monopage (SPA) développé par Google. La version 17 apporte :
+\begin{itemize}[leftmargin=*]
+  \item Les composants \texttt{standalone} (sans NgModule).
+  \item Le nouveau moteur de rendu (Vite/esbuild).
+  \item Les signaux pour la réactivité.
+  \item Un meilleur support TypeScript.
+\end{itemize}
+
+\subsection{Berry Template}
+Berry est un template Angular premium fournissant une interface utilisateur moderne et réactive. Il inclut :
+\begin{itemize}[leftmargin=*]
+  \item Une navigation latérale responsive.
+  \item Une bibliothèque de composants prêts à l'emploi.
+  \item Un système de thèmes et de personnalisation.
+  \item Des intégrations avec Chart.js et ng-bootstrap.
+\end{itemize}
+
+\section{Authentification JWT}
+JSON Web Token (JWT) est un standard ouvert (RFC 7519) pour la transmission sécurisée d'informations entre parties sous forme d'objet JSON. Le système utilise :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Access token :} JWT signé avec le rôle utilisateur, durée de vie : 7 jours.
+  \item \textbf{Refresh token :} JWT de type "refresh", durée de vie : 7 jours.
+  \item \textbf{Validation :} Chaque requête protégée est validée via un appel REST à l'auth-service.
+\end{itemize}
+
+% =====================================================
+\chapter{Implémentation du Backend}
+% =====================================================
+
+\section{Structure du Projet}
+
+Le backend est organisé selon une architecture en couches classique :
+
+\begin{verbatim}
+com.school.management
+  +-- SchoolManagementApplication.java
+  +-- config/
+  |     +-- CorsConfig.java
+  |     +-- SecurityConfig.java
+  |     +-- TokenValidationFilter.java
+  |     +-- KafkaConfig.java
+  |     +-- KafkaTopicConfig.java
+  |     +-- MongoEventListener.java
+  |     +-- DataSeeder.java
+  |     +-- RestTemplateConfig.java
+  +-- controller/     (17 classes)
+  +-- service/        (20 classes)
+  +-- repository/     (14 interfaces)
+  +-- entity/         (14 classes)
+  +-- dto/            (20 classes)
+\end{verbatim}
+
+\section{Couche Contrôleur}
+
+Chaque entité dispose d'un contrôleur REST exposant les endpoints CRUD standards. Exemple avec le contrôleur des notes :
+
+\begin{lstlisting}[style=javaStyle, caption=NoteController]
+@RestController
+@RequestMapping("/api/notes")
+public class NoteController {
+    
+    private final NoteService service;
+    
+    public NoteController(NoteService service) { this.service = service; }
+
+    @GetMapping
+    public List<NoteDTO> getAll() { return service.findAll(); }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<NoteDTO> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<NoteDTO> create(@Valid @RequestBody NoteDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<NoteDTO> update(@PathVariable Long id, 
+                                           @Valid @RequestBody NoteDTO dto) {
+        return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+\end{lstlisting}
+
+\section{Couche Service}
+
+Les services contiennent la logique métier. Ils gèrent les opérations CRUD, les validations et les synchronisations. Exemple avec le service des paiements :
+
+\begin{lstlisting}[style=javaStyle, caption=PaymentService]
+@Service
+public class PaymentService {
+    
+    private final PaymentRepository repository;
+    private final EleveRepository eleveRepository;
+    private final EntitySyncService entitySyncService;
+
+    public Payment create(PaymentDTO dto) {
+        Payment p = new Payment();
+        p.setEleve(dto.getEleve() != null ? 
+            eleveRepository.findById(dto.getEleve().getId()).orElse(null) : null);
+        p.setMois(dto.getMois());
+        p.setMontantAttendu(dto.getMontantAttendu());
+        p.setMontantPaye(dto.getMontantPaye());
+        p.setDatePaiement(dto.getDatePaiement());
+        p.setStatut(dto.getStatut());
+        return repository.save(p);
+    }
+}
+\end{lstlisting}
+
+\section{Couche Repository}
+
+Les repositories étendent \texttt{MongoRepository} et bénéficient des requêtes dérivées (Query Methods) de Spring Data :
+
+\begin{lstlisting}[style=javaStyle, caption=Exemples de repositories]
+public interface NoteRepository extends MongoRepository<Note, Long> {
+    List<Note> findByEleve_Id(Long eleveId);
+    List<Note> findByMatiere_Id(Long matiereId);
+    List<Note> findByClasse_Id(Long classeId);
+}
+
+public interface AbsenceRepository extends MongoRepository<Absence, Long> {
+    List<Absence> findByEnseignant_Id(Long enseignantId);
+    List<Absence> findByDateBetween(LocalDate debut, LocalDate fin);
+}
+\end{lstlisting}
+
+\section{Sécurité et Authentification}
+
+\subsection{TokenValidationFilter}
+Ce filtre intercepte chaque requête entrante (sauf OPTIONS et /api/auth/**) et valide le token JWT auprès de l'auth-service :
+
+\begin{lstlisting}[style=javaStyle, caption=TokenValidationFilter]
+public class TokenValidationFilter extends OncePerRequestFilter {
+
+    private final RestTemplate restTemplate;
+    private final String authServiceUrl;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain) {
+        
+        String header = request.getHeader("Authorization");
+        if (header == null || !header.startsWith("Bearer ")) {
+            response.setStatus(401);
+            return;
+        }
+        
+        String token = header.substring(7);
+        Map<String, String> result = restTemplate.postForObject(
+            authServiceUrl + "/api/auth/validate",
+            Map.of("token", token),
+            Map.class);
+        
+        String username = result.get("username");
+        String role = result.get("role");
+        
+        UsernamePasswordAuthenticationToken auth = 
+            new UsernamePasswordAuthenticationToken(username, null,
+                List.of(new SimpleGrantedAuthority("ROLE_" + role)));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        chain.doFilter(request, response);
+    }
+}
+\end{lstlisting}
+
+\subsection{CORS}
+La configuration CORS autorise toutes les origines avec credentials :
+
+\begin{lstlisting}[style=javaStyle, caption=CorsConfig]
+@Configuration
+public class CorsConfig {
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+}
+\end{lstlisting}
+
+\section{Service d'Authentification (Auth Service)}
+
+Le service d'authentification est une application Spring Boot indépendante (port 8083) qui gère :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Inscription :} Création de compte utilisateur avec mot de passe hashé (BCrypt).
+  \item \textbf{Connexion :} Validation des credentials et génération de tokens JWT.
+  \item \textbf{Rafraîchissement :} Génération d'un nouvel access token à partir du refresh token.
+  \item \textbf{Validation :} Vérification de la validité d'un token JWT.
+\end{itemize}
+
+\begin{lstlisting}[style=javaStyle, caption=AuthService - Validation de token]
+public AuthResponse validateToken(String token) {
+    if (!jwtUtil.validateToken(token) || jwtUtil.isRefreshToken(token)) {
+        throw new RuntimeException("Invalid or expired token");
+    }
+    String username = jwtUtil.getUsernameFromToken(token);
+    String role = jwtUtil.getRoleFromToken(token);
+    return new AuthResponse(null, null, username, role);
+}
+\end{lstlisting}
+
+% =====================================================
+\chapter{Implémentation du Frontend}
+% =====================================================
+
+\section{Architecture Angular}
+
+Le frontend est organisé selon la structure suivante :
+
+\begin{verbatim}
+src/
+  +-- app/
+  |     +-- services/          (Services API)
+  |     |     +-- auth.service.ts
+  |     |     +-- eleve.service.ts
+  |     |     +-- enseignant.service.ts
+  |     |     +-- ...
+  |     +-- theme/
+  |     |     +-- shared/_helpers/
+  |     |           +-- auth.interceptor.ts
+  |     +-- demo/
+  |           +-- elements/    (Composants CRUD)
+  |                 +-- claims/
+  |                 +-- teachers/
+  |                 +-- students/
+  |                 +-- ...
+  +-- environments/
+  |     +-- environment.ts
+  |     +-- environment.prod.ts
+  +-- proxy.conf.json
+\end{verbatim}
+
+\section{Composants et Services}
+
+\subsection{Service d'Authentification}
+Le service d'authentification Angular gère les tokens JWT dans le localStorage :
+
+\begin{lstlisting}[style=typescriptStyle, caption=AuthService Angular]
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private authUrl = `${environment.apiUrl}/auth`;
+
+  constructor(private http: HttpClient) {}
+
+  login(data: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.authUrl}/login`, data)
+      .pipe(tap(res => this.setSession(res)));
+  }
+
+  refreshToken(): Observable<AuthResponse> {
+    const refreshToken = this.getRefreshToken();
+    return this.http.post<AuthResponse>(
+      `${this.authUrl}/refresh`, { refreshToken }
+    ).pipe(tap(res => this.setSession(res)));
+  }
+
+  private setSession(res: AuthResponse): void {
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('refreshToken', res.refreshToken);
+    localStorage.setItem('username', res.username);
+    localStorage.setItem('role', res.role);
+  }
+}
+\end{lstlisting}
+
+\subsection{Interceptor HTTP}
+L'intercepteur ajoute automatiquement le token JWT à chaque requête et gère le rafraîchissement en cas de 401 :
+
+\begin{lstlisting}[style=typescriptStyle, caption=Auth Interceptor]
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const token = authService.getToken();
+
+  let cloned = req;
+  if (token) {
+    cloned = req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  return next(cloned).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && !req.url.includes('/auth/refresh')) {
+        return authService.refreshToken().pipe(
+          switchMap(res => {
+            const retryReq = req.clone({
+              setHeaders: { Authorization: `Bearer ${res.token}` }
+            });
+            return next(retryReq);
+          }),
+          catchError(() => {
+            authService.logout();
+            return throwError(() => new Error('Session expired'));
+          })
+        );
+      }
+      return throwError(() => error);
+    })
+  );
+};
+\end{lstlisting}
+
+\section{Proxy de Développement}
+Le fichier \texttt{proxy.conf.json} redirige les requêtes API vers le backend pendant le développement :
+
+\begin{lstlisting}[style=jsonStyle, caption=Proxy configuration]
+{
+  "/api/**": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "logLevel": "debug"
+  }
+}
+\end{lstlisting}
+
+% =====================================================
+\chapter{Tests et Déploiement}
+% =====================================================
+
+\section{Tests}
+
+Les tests ont été effectués à plusieurs niveaux :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Tests unitaires :} Validation des services et des méthodes métier.
+  \item \textbf{Tests d'intégration :} Validation des endpoints REST avec des appels réels.
+  \item \textbf{Tests de bout en bout :} Simulation de parcours utilisateur complets (création d'un élève, ajout de notes, paiement).
+\end{itemize}
+
+\section{Déploiement}
+
+Le projet est déployé sur GitHub dans trois dépôts distincts :
+\begin{itemize}[leftmargin=*]
+  \item \url{github.com/mohamecherifhamdi-arch/schoolBack} — Backend Spring Boot
+  \item \url{github.com/mohamecherifhamdi-arch/schoolFront} — Frontend Angular
+  \item \url{github.com/mohamecherifhamdi-arch/AuthService} — Auth Service
+\end{itemize}
+
+\subsection{Prérequis}
+\begin{itemize}[leftmargin=*]
+  \item Java 17+
+  \item Node.js 18+
+  \item MongoDB 6+
+  \item Kafka 3+
+  \item Angular CLI 17
+\end{itemize}
+
+\subsection{Guide d'Installation}
+\begin{enumerate}[leftmargin=*]
+  \item Démarrer MongoDB : \texttt{mongod}
+  \item Démarrer Kafka : \texttt{zookeeper-server-start} puis \texttt{kafka-server-start}
+  \item Lancer l'auth-service : \texttt{cd auth-service \&\& mvn spring-boot:run}
+  \item Lancer le backend : \texttt{cd backend \&\& mvn spring-boot:run}
+  \item Lancer le frontend : \texttt{cd frontend \&\& ng serve --proxy-config proxy.conf.json}
+  \item Accéder à l'application : \url{http://localhost:4200}
+\end{enumerate}
+
+% =====================================================
+\chapter*{Conclusion Générale}
+\addcontentsline{toc}{chapter}{Conclusion Générale}
+% =====================================================
+
+\paragraph{Bilan}
+Ce projet de fin d'études nous a permis de concevoir et développer un système de gestion scolaire complet, répondant aux besoins d'automatisation, de centralisation et de sécurisation des processus administratifs et pédagogiques d'un établissement d'enseignement.
+
+L'architecture en trois composants (frontend Angular, backend Spring Boot, service d'authentification dédié) offre une modularité et une évolutivité appréciables. L'utilisation de MongoDB comme base de données NoSQL a permis une grande flexibilité dans la modélisation des données, tandis que Kafka assure une communication asynchrone robuste entre les services.
+
+\paragraph{Résultats obtenus}
+\begin{itemize}[leftmargin=*]
+  \item Un système fonctionnel couvrant 14 entités métier avec des opérations CRUD complètes.
+  \item Une authentification sécurisée avec JWT, refresh token et validation centralisée.
+  \item Une synchronisation automatique des documents embarqués via EntitySyncService.
+  \item Un assistant virtuel intelligent basé sur OpenAI.
+  \item Une interface utilisateur moderne, responsive et intuitive.
+\end{itemize}
+
+\paragraph{Difficultés rencontrées}
+Plusieurs défis techniques ont été relevés :
+\begin{itemize}[leftmargin=*]
+  \item La gestion de la cohérence des données avec MongoDB (documents embarqués vs références).
+  \item La mise en place du pattern requête/réponse asynchrone avec Kafka.
+  \item La configuration CORS entre les différents services.
+  \item La rotation des refresh tokens et la gestion des sessions expirées.
+\end{itemize}
+
+\paragraph{Perspectives d'amélioration}
+Le système peut être enrichi de plusieurs fonctionnalités :
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Notifications push :} Alertes en temps réel pour les absences, paiements et réclamations.
+  \item \textbf{Export PDF/Excel :} Génération de bulletins, relevés de notes et factures.
+  \item \textbf{Dashboard avancé :} Statistiques et indicateurs de performance (KPIs) avec graphiques interactifs.
+  \item \textbf{Application mobile :} Version mobile avec Flutter ou React Native.
+  \item \textbf{Conteneurisation :} Déploiement via Docker et Docker Compose pour une installation simplifiée.
+  \item \textbf{CI/CD :} Intégration continue avec GitHub Actions pour les tests automatisés.
+\end{itemize}
+
+\paragraph{Apports personnels}
+Ce projet nous a permis d'acquérir une expérience significative dans :
+\begin{itemize}[leftmargin=*]
+  \item Le développement d'applications web modernes avec Angular et Spring Boot.
+  \item La modélisation de données avec MongoDB et les documents embarqués.
+  \item La mise en place d'une architecture orientée microservices.
+  \item La gestion de l'authentification et de la sécurité des applications web.
+  \item L'utilisation de Kafka pour la communication asynchrone.
+  \item Le travail en équipe et la gestion de projet avec Git et GitHub.
+\end{itemize}
+
+% Bibliography
+\begin{thebibliography}{9}
+\bibitem{spring}
+Spring Boot Documentation. \textit{Spring Boot Reference Guide}. \url{https://docs.spring.io/spring-boot/docs/current/reference/html/}
+
+\bibitem{angular}
+Angular Documentation. \textit{Angular v17 Developer Guide}. \url{https://angular.dev/}
+
+\bibitem{mongodb}
+MongoDB Documentation. \textit{MongoDB Manual}. \url{https://www.mongodb.com/docs/manual/}
+
+\bibitem{kafka}
+Apache Kafka Documentation. \textit{Kafka 3.x Documentation}. \url{https://kafka.apache.org/documentation/}
+
+\bibitem{jwt}
+JSON Web Token RFC 7519. \textit{RFC 7519 - JSON Web Token}. \url{https://datatracker.ietf.org/doc/html/rfc7519}
+
+\bibitem{berry}
+Berry Angular Admin Template. \textit{CodedThemes - Berry Template}. \url{https://codedthemes.com/item/berry-angular-admin-template/}
+
+\bibitem{springai}
+Spring AI Documentation. \textit{Spring AI Reference}. \url{https://docs.spring.io/spring-ai/reference/}
+\end{thebibliography}
+
+\end{document}

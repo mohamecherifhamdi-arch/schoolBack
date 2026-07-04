@@ -15,6 +15,7 @@ public class ReclamationService {
     private final ReclamationRepository repository;
     private final EnseignantRepository enseignantRepository;
     private final EleveRepository eleveRepository;
+    private static Long reclamationId = 1L;
     public ReclamationService(ReclamationRepository repository, EnseignantRepository enseignantRepository, EleveRepository eleveRepository) {
         this.repository = repository;
         this.enseignantRepository = enseignantRepository;
@@ -25,6 +26,8 @@ public class ReclamationService {
     public ReclamationDTO findById(Long id) { return ReclamationDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Reclamation not found"))); }
     public ReclamationDTO create(ReclamationDTO dto) {
         Reclamation r = new Reclamation();
+        reclamationId = reclamationId + 1;
+        r.setId(reclamationId);
         r.setEnseignant(dto.getEnseignant() != null && dto.getEnseignant().getId() != null ? enseignantRepository.findById(dto.getEnseignant().getId()).orElse(null) : null);
         r.setEleve(dto.getEleve() != null && dto.getEleve().getId() != null ? eleveRepository.findById(dto.getEleve().getId()).orElse(null) : null);
         r.setDate(dto.getDate() != null ? dto.getDate() : LocalDate.now());

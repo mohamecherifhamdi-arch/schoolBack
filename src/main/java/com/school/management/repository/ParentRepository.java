@@ -10,4 +10,5 @@ import java.util.List;
 public interface ParentRepository extends MongoRepository<Parent, Long> {
     List<Parent> findByNomContainingIgnoreCase(String nom);
     List<Parent> findByStatut(String statut);
+    List<Parent> findByEleves_Id(Long eleveId);
 }

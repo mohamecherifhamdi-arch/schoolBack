@@ -18,7 +18,7 @@ import java.time.LocalTime;
 @Document(collection = "plannings")
 public class Planning {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String enseignant;////////////////////////***
     private String matiere; ////////////////////////***

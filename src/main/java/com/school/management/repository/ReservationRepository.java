@@ -11,4 +11,5 @@ public interface ReservationRepository extends MongoRepository<Reservation, Long
     List<Reservation> findBySalle_Id(Long salleId);
     List<Reservation> findByDate(String date);
     List<Reservation> findBySalle_IdAndDateAndSession(Long salleId, String date, String session);
+    List<Reservation> findByEnseignant_Id(Long enseignantId);
 }

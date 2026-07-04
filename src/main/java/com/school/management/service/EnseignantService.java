@@ -10,17 +10,22 @@ import java.util.List;
 
 @Service
 public class EnseignantService {
+    private Long enseignantId = 1L;
     private final EnseignantRepository repository;
     private final MatiereRepository matiereRepository;
-    public EnseignantService(EnseignantRepository repository, MatiereRepository matiereRepository) {
+    private final EntitySyncService entitySyncService;
+    public EnseignantService(EnseignantRepository repository, MatiereRepository matiereRepository, EntitySyncService entitySyncService) {
         this.repository = repository;
         this.matiereRepository = matiereRepository;
+        this.entitySyncService = entitySyncService;
     }
 
     public List<EnseignantDTO> findAll() { return repository.findAll().stream().map(EnseignantDTO::fromEntity).toList(); }
     public EnseignantDTO findById(Long id) { return EnseignantDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Enseignant not found"))); }
     public EnseignantDTO create(EnseignantDTO dto) {
         Enseignant enseignant = new Enseignant();
+        enseignantId = enseignantId +1;
+        enseignant.setId(enseignantId);
         enseignant.setNom(dto.getNom());
         enseignant.setPrenom(dto.getPrenom());
         enseignant.setEmail(dto.getEmail());
@@ -37,8 +42,12 @@ public class EnseignantService {
         existing.setTelephone(dto.getTelephone());
         existing.setMatieres(dto.getMatieres());
         existing.setStatut(dto.getStatut());
-        return EnseignantDTO.fromEntity(repository.save(existing));
+        Enseignant saved = repository.save(existing);
+        entitySyncService.syncEnseignant(saved);
+        return EnseignantDTO.fromEntity(saved);
     }
-    public void delete(Long id) { repository.deleteById(id); }
+    public void delete(Long id) { repository.deleteById(id);
+        entitySyncService.syncDeleteEnseignant(id);
+    }
 
 }

@@ -14,6 +14,7 @@ import java.util.Optional;
 @Service
 public class PaymentService {
     private final PaymentRepository repository;
+    private  Long paymentId  = 1L;
     private final EleveRepository eleveRepository;
     public PaymentService(PaymentRepository repository, EleveRepository eleveRepository) {
         this.repository = repository;
@@ -24,6 +25,8 @@ public class PaymentService {
     public PaymentDTO findById(Long id) { return PaymentDTO.fromEntity(repository.findById(id).orElseThrow(() -> new RuntimeException("Payment not found"))); }
     public PaymentDTO create(PaymentDTO dto) {
         Payment payment = new Payment();
+        paymentId = paymentId + 1 ;
+        payment.setId(paymentId);
         payment.setEleve(dto.getEleve() != null && dto.getEleve().getId() != null ? eleveRepository.findById(dto.getEleve().getId()).orElse(null) : null);
         payment.setMois(dto.getMois());
         payment.setMontantAttendu(dto.getMontantAttendu());
